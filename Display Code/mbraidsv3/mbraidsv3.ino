@@ -3,7 +3,6 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-int muxCount;
 // If using software SPI (the default case):
 #define OLED_MOSI   9
 #define OLED_CLK   10
@@ -12,8 +11,6 @@ int muxCount;
 #define OLED_RESET 13
 Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
 word character[4];
-int histTotal;
-uint16_t digit;
 int readIndex[4] = {4, 5, 2, 3};
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
@@ -48,7 +45,6 @@ void loop()
   if (sinceDisplay > 20)
   {
     testOutput();
-    //writeOutput();
     sinceDisplay = 0;
   }
   delay(1);
@@ -59,7 +55,7 @@ void testOutput()
   display.clearDisplay();
   for (int n = 0; n < 4; n++)
   {
-    digit = 32 * n;
+    uint16_t digit = 32 * n;
     for (int q = 0; q < 14; q++)
     {
       if (bitRead(character[n], q))
@@ -106,52 +102,6 @@ void testOutput()
   display.display();
 }
 
-void writeOutput()
-{
-  display.clearDisplay();
-  for (int i = 0; i < 5; i++)
-  {
-    for (int x = 0; x < 16; x++)
-    {
-      if (i < 4)
-      {
-        if (bitRead(character[i], x))
-          display.drawPixel(x * 8, i * 7, WHITE);
-        else
-          display.drawPixel(x * 8, i * 7, BLACK);
-      }
-      else
-        display.drawPixel(x * 8, i * 7, WHITE);
-    }
-  }
-  display.display();
-}
-
-void inputDetect()
-{
-  for (int i = 0; i < 4; i++)
-  {
-    if (digitalRead(readIndex[i]))
-    {
-      boolean inputRead;
-      inputRead = digitalRead(A0);
-      if (inputRead)
-        bitSet(character[i], muxCount);
-      else
-        bitClear(character[i], muxCount);
-    }
-  }
-}
-
-void multiplexer()
-{
-  digitalWrite(A1, muxCount & 0b01);
-  digitalWrite(A2, muxCount & 0b10);
-  digitalWrite(A3, muxCount & 0b100);
-  digitalWrite(A4, muxCount & 0b1000);
-  inputDetect();
-  muxCount = (muxCount + 1) % 14;
-}
 
 inline void dispcharISR(int selected) {
   for (uint8_t mux_count = 0; mux_count < NUM_SEGMENTS; mux_count++) {
