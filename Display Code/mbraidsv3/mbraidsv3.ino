@@ -1,4 +1,3 @@
-#include <elapsedMillis.h>
 #include <PinChangeInterrupt.h>
 #include <SPI.h>
 #include <Wire.h>
@@ -16,8 +15,6 @@ word character[4];
 int histTotal;
 uint16_t digit;
 int readIndex[4] = {4, 5, 2, 3};
-elapsedMillis sinceDisplay;
-elapsedMillis sinceMux;
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
@@ -45,7 +42,7 @@ void setup()   {
   display.clearDisplay();
 }
 
-
+int sinceDisplay = 0;
 void loop()
 {
   if (sinceDisplay > 20)
@@ -54,6 +51,7 @@ void loop()
     //writeOutput();
     sinceDisplay = 0;
   }
+  delay(1);
 }
 
 void testOutput()
